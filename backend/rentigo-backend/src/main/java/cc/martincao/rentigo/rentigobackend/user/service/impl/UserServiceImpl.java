@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import jakarta.persistence.EntityNotFoundException; // Import EntityNotFoundException
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -59,7 +60,18 @@ public class UserServiceImpl implements UserService {
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
-        user.setRoles(Set.of(roleRepo.getReferenceById(1))); // 默认 USER
+
+        Role defaultRole;
+        try {
+            defaultRole = roleRepo.getReferenceById(1); // Default USER role
+            // Attempt to access an attribute to force proxy initialization
+            // and trigger EntityNotFoundException if the role does not exist.
+            defaultRole.getName(); // Or any other non-ID attribute. This line is crucial.
+        } catch (EntityNotFoundException e) {
+            // If getReferenceById's proxy cannot find the entity, throw RoleNotFoundException
+            throw new RoleNotFoundException("角色未找到: " + 1); // Use Chinese message as expected by the test
+        }
+        user.setRoles(Set.of(defaultRole)); 
         User saved = userRepo.save(user);
         return mapper.map(saved, UserResponse.class);
     }
