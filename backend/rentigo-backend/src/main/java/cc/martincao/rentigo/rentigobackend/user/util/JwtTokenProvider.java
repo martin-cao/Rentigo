@@ -1,5 +1,6 @@
 package cc.martincao.rentigo.rentigobackend.user.util;
 
+import cc.martincao.rentigo.rentigobackend.user.Role;
 import cc.martincao.rentigo.rentigobackend.user.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -23,17 +24,18 @@ public class JwtTokenProvider {
 
     /** 生成 Token */
     public String generateToken(User user) {
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
+        claims.put("roles", user.getRoles().stream()
+                .map(Role::getName).collect(Collectors.toList()));
+
         Date now = new Date();
         Date exp = new Date(now.getTime() + validityMs);
-        String roles = user.getRoles().stream()
-                .map(r -> r.getName()).collect(Collectors.joining(","));
+
         return Jwts.builder()
-                .setSubject(user.getId().toString())
-                .claim("u", user.getUsername())
-                .claim("r", roles)
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey)
                 .compact();
     }
 

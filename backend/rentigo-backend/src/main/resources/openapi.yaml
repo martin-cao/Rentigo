@@ -19,6 +19,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              default:
+                value:
+                  username: "newuser"
+                  email: "newuser@example.com"
+                  password: "password123"
       responses:
         '200':
           description: User registered successfully
@@ -40,6 +46,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
+            examples:
+              default:
+                value:
+                  username: "newuser"
+                  password: "password123"
       responses:
         '200':
           description: Login successful, returns JWT token
@@ -59,8 +70,6 @@ paths:
       summary: Get current user details
       tags:
         - User
-      security:
-        - BearerAuth: []
       responses:
         '200':
           description: Successful retrieval of user details
@@ -76,12 +85,11 @@ paths:
       summary: Change user password
       tags:
         - User
-      security:
-        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: The ID of the user to update.
           schema:
             type: integer
             format: int64
@@ -91,6 +99,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PasswordChangeRequest'
+            examples:
+              default:
+                value:
+                  oldPassword: "currentPassword"
+                  newPassword: "newStrongPassword"
       responses:
         '200':
           description: Password changed successfully
@@ -104,8 +117,6 @@ paths:
       summary: List all users (Admin only)
       tags:
         - Admin
-      security:
-        - BearerAuth: []
       parameters:
         - name: page
           in: query
@@ -136,12 +147,11 @@ paths:
       summary: Update user roles (Admin only)
       tags:
         - Admin
-      security:
-        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: The ID of the user to update.
           schema:
             type: integer
             format: int64
@@ -260,9 +270,3 @@ components:
           type: integer
         empty:
           type: boolean
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT

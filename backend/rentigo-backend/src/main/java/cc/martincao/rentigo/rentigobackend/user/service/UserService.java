@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface UserService {
     UserResponse register(RegisterRequest request);
-    String        login(LoginRequest request);
+    LoginResponse login(LoginRequest request);
     UserResponse  me();
     Page<UserResponse> findAll(Pageable pageable);
     void changePassword(Long userId, PasswordChangeRequest request);

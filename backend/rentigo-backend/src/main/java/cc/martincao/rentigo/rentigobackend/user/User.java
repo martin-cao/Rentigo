@@ -50,7 +50,7 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     // Many-to-many mapping between users and roles via user_role table
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -70,21 +70,6 @@ public class User implements UserDetails {
     @Override
     public String getPassword() {
         return this.passwordHash;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
     }
 
     @Override

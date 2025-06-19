@@ -2,13 +2,13 @@ package cc.martincao.rentigo.rentigobackend.user.controller;
 
 import cc.martincao.rentigo.rentigobackend.user.dto.*;
 import cc.martincao.rentigo.rentigobackend.user.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -29,12 +29,13 @@ public class UserController {
 
     /** 登录 */
     @PostMapping("/auth/login")
-    public Map<String, String> login(@Valid @RequestBody LoginRequest req) {
-        return Map.of("token", users.login(req));
+    public LoginResponse login(@Valid @RequestBody LoginRequest req) {
+        return users.login(req);
     }
 
     /** 当前用户 */
     @GetMapping("/users/me")
+    @SecurityRequirement(name = "bearerAuth")
     public UserResponse me() {
         return users.me();
     }
@@ -42,6 +43,7 @@ public class UserController {
     /** 管理员分页查用户 */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/users")
+    @SecurityRequirement(name = "bearerAuth")
     public Page<UserResponse> list(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "20") int size) {
         return users.findAll(PageRequest.of(page, size));
@@ -50,6 +52,7 @@ public class UserController {
     /** 管理员改角色 */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/users/{id}/roles")
+    @SecurityRequirement(name = "bearerAuth")
     public void updateRoles(@PathVariable Long id,
                             @RequestBody Set<Integer> roleIds) {
         users.updateRoles(id, roleIds);
@@ -57,6 +60,7 @@ public class UserController {
 
     /** 用户改密码 */
     @PutMapping("/users/{id}/password")
+    @SecurityRequirement(name = "bearerAuth")
     public void changePwd(@PathVariable Long id,
                           @Valid @RequestBody PasswordChangeRequest req) {
         users.changePassword(id, req);
