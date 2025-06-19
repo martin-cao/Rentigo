@@ -28,8 +28,11 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 用 Lambda 方式禁用 CSRF
-                .csrf(AbstractHttpConfigurer::disable)
+                // 精确地禁用对 /api/auth/** 的 CSRF 防护
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
+
+                // 禁用默认的 CORS 配置，以避免冲突
+                .cors(AbstractHttpConfigurer::disable)
 
                 // 用 Lambda 方式设置无状态 Session
                 .sessionManagement(sm -> sm

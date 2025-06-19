@@ -58,10 +58,6 @@
 			<artifactId>stripe-java</artifactId>
 			<version>29.2.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
 		<!-- ModelMapper：实体和DTO互转 -->
 		<dependency>
 			<groupId>org.modelmapper</groupId>
@@ -97,12 +93,6 @@
 			<artifactId>lombok</artifactId>
 			<version>1.18.30</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
-			<scope>annotationProcessor</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
