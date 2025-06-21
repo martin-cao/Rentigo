@@ -19,10 +19,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByStatusOrderByCreatedAtDesc(PaymentStatus status);
     
     // 根据支付类型查找支付记录
-    List<Payment> findByTypeOrderByCreatedAtDesc(PaymentType type);
+    List<Payment> findByPaymentTypeOrderByCreatedAtDesc(PaymentType paymentType);
     
     // 查找某租赁的特定类型支付记录
-    List<Payment> findByRentalIdAndTypeOrderByCreatedAtDesc(Long rentalId, PaymentType type);
+    List<Payment> findByRentalIdAndPaymentTypeOrderByCreatedAtDesc(Long rentalId, PaymentType paymentType);
     
     // 查找某租赁的成功支付记录
     List<Payment> findByRentalIdAndStatusOrderByCreatedAtDesc(Long rentalId, PaymentStatus status);
