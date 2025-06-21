@@ -1,6 +1,7 @@
 package cc.martincao.rentigo.rentigobackend.user.controller;
 
 import cc.martincao.rentigo.rentigobackend.user.dto.LoginRequest;
+import cc.martincao.rentigo.rentigobackend.user.dto.LoginResponse;
 import cc.martincao.rentigo.rentigobackend.user.dto.RegisterRequest;
 import cc.martincao.rentigo.rentigobackend.user.dto.UserResponse;
 import cc.martincao.rentigo.rentigobackend.user.service.UserService;
@@ -95,15 +96,15 @@ class UserControllerTest {
 
     @Test
     void login_shouldReturnToken_whenLoginIsSuccessful() throws Exception {
-        String token = "test-jwt-token";
-        when(userService.login(any(LoginRequest.class))).thenReturn(token);
+        LoginResponse loginResponse = new LoginResponse("test-jwt-token");
+        when(userService.login(any(LoginRequest.class))).thenReturn(loginResponse);
 
         mockMvc.perform(post("/api/auth/login")
                         .with(csrf()) // Add CSRF token
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is(token)));
+                .andExpect(jsonPath("$.token", is(loginResponse.getToken())));
     }
     
     // We will add more tests for other endpoints here

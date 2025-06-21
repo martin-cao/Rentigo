@@ -58,6 +58,24 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "phone", length = 32)
+    private String phone;
+
+    @Column(name = "real_name", length = 64)
+    private String realName;
+
+    @Column(name = "id_card", length = 32)
+    private String idCard;
+
+    @Column(name = "reserved_field1")
+    private String reservedField1;
+
+    @Column(name = "reserved_field2")
+    private String reservedField2;
+
+    @Column(name = "reserved_field3", precision = 10, scale = 2)
+    private java.math.BigDecimal reservedField3;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();

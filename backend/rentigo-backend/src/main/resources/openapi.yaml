@@ -172,7 +172,284 @@ paths:
         '403':
           description: Forbidden if user is not an admin
 
+  /api/vehicle/list:
+    get:
+      summary: List available vehicles (optionally filtered by location)
+      tags:
+        - Vehicle
+      parameters:
+        - name: locationId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int16
+          description: ID of the location to filter vehicles (if not provided, returns all vehicles)
+      responses:
+        '200':
+          description: A list of vehicles (all vehicles if no locationId provided, or available vehicles for specific location)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Invalid location ID supplied
+
+  /api/vehicle/add:
+    post:
+      summary: Add a new vehicle (Operator/Admin)
+      tags:
+        - Vehicle
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreateDTO'
+      responses:
+        '201':
+          description: Vehicle created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/vehicle/update/{id}:
+    put:
+      summary: Update an existing vehicle (Operator/Admin)
+      tags:
+        - Vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the vehicle to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDTO'
+      responses:
+        '200':
+          description: Vehicle updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Vehicle not found
+
+  /api/vehicle/remove/{id}:
+    delete:
+      summary: Remove a vehicle (Operator/Admin)
+      tags:
+        - Vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the vehicle to remove
+      responses:
+        '204':
+          description: Vehicle removed successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Vehicle not found
+
+  /api/rentals:
+    post:
+      summary: Create a new rental
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalRequestDTO'
+      responses:
+        '200':
+          description: Rental created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalResponseDTO'
+        '400':
+          description: Invalid input or vehicle not available
+        '401':
+          description: Unauthorized
+        '404':
+          description: Vehicle not found
+    get:
+      summary: Get all rentals (Operator/Admin)
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all rentals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RentalResponseDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/rentals/my:
+    get:
+      summary: Get current user's rentals
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of user's rentals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RentalResponseDTO'
+        '401':
+          description: Unauthorized
+
+  /api/rentals/{id}/return:
+    post:
+      summary: Return a rental vehicle
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the rental to return
+      responses:
+        '200':
+          description: Vehicle returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalResponseDTO'
+        '400':
+          description: Invalid request or rental not active
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Rental not found
+
+  /api/rentals/{id}/force-finish:
+    post:
+      summary: Force finish a rental (Operator/Admin)
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the rental to force finish
+      responses:
+        '200':
+          description: Rental force finished successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalResponseDTO'
+        '400':
+          description: Invalid request or rental not active
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Rental not found
+
+  /api/rentals/{id}/activate:
+    post:
+      summary: Activate a rental (change from PAID to ACTIVE)
+      tags:
+        - Rental
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the rental to activate
+      responses:
+        '200':
+          description: Rental activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalResponseDTO'
+        '400':
+          description: Invalid request or rental not in PAID status
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Rental not found
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     RegisterRequest:
       type: object
@@ -270,3 +547,217 @@ components:
           type: integer
         empty:
           type: boolean
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        model:
+          type: string
+        vehicleType:
+          $ref: '#/components/schemas/VehicleType'
+        location:
+          $ref: '#/components/schemas/Location'
+        color:
+          type: string
+        dailyPrice:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [AVAILABLE, RENTED, MAINTENANCE]
+        licensePlate:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    VehicleDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Vehicle ID (only present in responses)"
+        model:
+          type: string
+          description: "Vehicle model"
+        vehicleTypeId:
+          type: integer
+          format: int32
+          description: "Vehicle type ID"
+        vehicleTypeName:
+          type: string
+          description: "Vehicle type name (read-only)"
+        depositAmount:
+          type: number
+          format: double
+          description: "Deposit amount based on vehicle type (read-only)"
+        locationId:
+          type: integer
+          format: int32
+          description: "Location ID"
+        color:
+          type: string
+          description: "Vehicle color"
+        dailyPrice:
+          type: number
+          format: double
+          description: "Daily rental price"
+        status:
+          type: string
+          enum: [AVAILABLE, RENTED, MAINTENANCE]
+          description: "Vehicle status"
+        licensePlate:
+          type: string
+          description: "License plate number"
+      required:
+        - model
+        - vehicleTypeId
+        - locationId
+        - dailyPrice
+
+    VehicleCreateDTO:
+      type: object
+      properties:
+        model:
+          type: string
+          example: "Tesla Model 3"
+        vehicleTypeId:
+          type: integer
+          format: int32
+          example: 1
+        locationId:
+          type: integer
+          format: int32
+          example: 1
+        color:
+          type: string
+          example: "white"
+        dailyPrice:
+          type: number
+          format: double
+          example: 200.00
+        status:
+          type: string
+          enum: [AVAILABLE, RENTED, MAINTENANCE]
+          example: "AVAILABLE"
+        licensePlate:
+          type: string
+          example: "A12345"
+      required:
+        - model
+        - vehicleTypeId
+        - locationId
+        - dailyPrice
+
+    VehicleType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        typeName:
+          type: string
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        city:
+          type: string
+        centerName:
+          type: string
+        address:
+          type: string
+        lng:
+          type: number
+          format: double
+        lat:
+          type: number
+          format: double
+
+    RentalRequestDTO:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+          example: "2025-06-22T10:00:00.000Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2025-06-25T10:00:00.000Z"
+      required:
+        - vehicleId
+        - startTime
+        - endTime
+
+    RentalResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        username:
+          type: string
+        vehicleId:
+          type: integer
+          format: int64
+        vehicleModel:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        actualReturnTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [PENDING_PAYMENT, PAID, ACTIVE, FINISHED, CANCELLED]
+        totalAmount:
+          type: number
+          format: double
+          description: "Total rental amount including any overtime fees"
+        depositAmount:
+          type: number
+          format: double
+          description: "Deposit amount for this rental"
+        depositStatus:
+          type: string
+          enum: [NOT_COLLECTED, COLLECTED, RETURNED, CONFISCATED, PARTIALLY_CONFISCATED]
+          description: "Deposit status"
+        depositPaidAt:
+          type: string
+          format: date-time
+          description: "When deposit was paid"
+        depositReturnedAt:
+          type: string
+          format: date-time
+          description: "When deposit was returned"
+        overtimeAmount:
+          type: number
+          format: double
+          description: "Overtime fee amount"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

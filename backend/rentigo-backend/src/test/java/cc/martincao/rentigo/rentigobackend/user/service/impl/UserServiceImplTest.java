@@ -3,6 +3,7 @@ package cc.martincao.rentigo.rentigobackend.user.service.impl;
 import cc.martincao.rentigo.rentigobackend.user.Role;
 import cc.martincao.rentigo.rentigobackend.user.User;
 import cc.martincao.rentigo.rentigobackend.user.dto.LoginRequest;
+import cc.martincao.rentigo.rentigobackend.user.dto.LoginResponse;
 import cc.martincao.rentigo.rentigobackend.user.dto.PasswordChangeRequest;
 import cc.martincao.rentigo.rentigobackend.user.dto.RegisterRequest;
 import cc.martincao.rentigo.rentigobackend.user.dto.UserResponse;
@@ -474,9 +475,9 @@ class UserServiceImplTest {
         // as the service method calls SecurityContextHolder.getContext().setAuthentication(auth)
         // We verify the interaction with authenticationManager and jwtTokenProvider
 
-        String token = userService.login(loginRequest);
+        LoginResponse loginResponse = userService.login(loginRequest);
 
-        assertEquals("mockToken", token);
+        assertEquals("mockToken", loginResponse.getToken());
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, times(1)).generateToken(mockUser);
         // Verify that SecurityContextHolder.getContext().setAuthentication() was effectively called
