@@ -21,18 +21,6 @@ public class UserController {
         this.users = users;
     }
 
-    /** 注册 */
-    @PostMapping("/auth/register")
-    public UserResponse register(@Valid @RequestBody RegisterRequest req) {
-        return users.register(req);
-    }
-
-    /** 登录 */
-    @PostMapping("/auth/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest req) {
-        return users.login(req);
-    }
-
     /** 当前用户 */
     @GetMapping("/users/me")
     @SecurityRequirement(name = "bearerAuth")

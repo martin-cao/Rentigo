@@ -1,10 +1,10 @@
 package cc.martincao.rentigo.rentigobackend.config;
 
 import cc.martincao.rentigo.rentigobackend.vehicle.model.Location;
+import cc.martincao.rentigo.rentigobackend.vehicle.repository.LocationRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.Vehicle;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.VehicleStatus;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.VehicleType;
-import cc.martincao.rentigo.rentigobackend.vehicle.repository.LocationRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.repository.VehicleRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.repository.VehicleTypeRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -54,7 +54,7 @@ public class DataInitializer implements CommandLineRunner {
         // Initialize Locations if they don't exist
         if (locationRepository.count() == 0) {
             Location location1 = new Location();
-            location1.setId((short) 1);
+            location1.setId(1);
             location1.setCity("Beijing");
             location1.setCenterName("Beijing Central Service Center");
             location1.setAddress("123 Main Street, Beijing");
@@ -62,7 +62,7 @@ public class DataInitializer implements CommandLineRunner {
             location1.setLat(new BigDecimal("39.9042"));
 
             Location location2 = new Location();
-            location2.setId((short) 2);
+            location2.setId(2);
             location2.setCity("Shanghai");
             location2.setCenterName("Shanghai Central Service Center");
             location2.setAddress("456 Nanjing Road, Shanghai");
@@ -78,8 +78,8 @@ public class DataInitializer implements CommandLineRunner {
             // Get the saved data for relationships
             VehicleType sedan = vehicleTypeRepository.findById((byte) 1).orElse(null);
             VehicleType suv = vehicleTypeRepository.findById((byte) 2).orElse(null);
-            Location beijingLocation = locationRepository.findById((short) 1).orElse(null);
-            Location shanghaiLocation = locationRepository.findById((short) 2).orElse(null);
+            Location beijingLocation = locationRepository.findById(1).orElse(null);
+            Location shanghaiLocation = locationRepository.findById(2).orElse(null);
 
             if (sedan != null && beijingLocation != null) {
                 Vehicle vehicle1 = new Vehicle();

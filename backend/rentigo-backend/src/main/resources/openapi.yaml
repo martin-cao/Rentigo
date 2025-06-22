@@ -444,6 +444,98 @@ paths:
         '404':
           description: Rental not found
 
+  /api/payment/create-session:
+    post:
+      summary: Create a payment session
+      tags:
+        - Payment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentSessionRequest'
+      responses:
+        '200':
+          description: Payment session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentSessionResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Rental not found
+
+  /api/payment/webhook:
+    post:
+      summary: Handle payment webhook
+      tags:
+        - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook handled successfully
+        '400':
+          description: Invalid webhook payload
+
+  /api/payment/{id}:
+    get:
+      summary: Get payment details
+      tags:
+        - Payment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the payment to get
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Payment not found
+
+  /api/payment/my:
+    get:
+      summary: Get current user's payments
+      tags:
+        - Payment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of user's payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentResponseDTO'
+        '401':
+          description: Unauthorized
+
 components:
   securitySchemes:
     bearerAuth:
@@ -759,5 +851,88 @@ components:
           type: string
           format: date-time
         updatedAt:
+          type: string
+          format: date-time
+
+    CreatePaymentSessionRequest:
+      type: object
+      properties:
+        rentalId:
+          type: integer
+          format: int64
+          description: "ID of the rental to pay for"
+        paymentType:
+          type: string
+          enum: [RENTAL, DEPOSIT, OVERTIME]
+          description: "Type of payment"
+        amount:
+          type: number
+          format: double
+          description: "Amount to pay"
+        currency:
+          type: string
+          default: "usd"
+          description: "Payment currency"
+        paymentMethod:
+          type: string
+          description: "Payment method (e.g., 'card')"
+        description:
+          type: string
+          description: "Payment description"
+      required:
+        - rentalId
+        - paymentType
+        - amount
+        - paymentMethod
+
+    CreatePaymentSessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          description: "Stripe session ID"
+        checkoutUrl:
+          type: string
+          description: "URL to redirect user for payment"
+        payment:
+          $ref: '#/components/schemas/PaymentResponseDTO'
+        message:
+          type: string
+          description: "Response message"
+
+    PaymentResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        rentalId:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+          format: double
+        paymentType:
+          type: string
+          enum: [RENTAL, DEPOSIT, OVERTIME]
+        status:
+          type: string
+          enum: [PENDING, SUCCESS, FAILED, REFUNDED]
+        paymentMethod:
+          type: string
+        stripeSessionId:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        paidAt:
           type: string
           format: date-time

@@ -1,5 +1,6 @@
 package cc.martincao.rentigo.rentigobackend.vehicle.model;
 
+import cc.martincao.rentigo.rentigobackend.vehicle.model.Location;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

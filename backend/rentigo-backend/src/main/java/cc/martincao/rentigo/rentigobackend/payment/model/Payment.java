@@ -46,6 +46,9 @@ public class Payment {
     @Column(name = "transaction_id", length = 100)
     private String transactionId;
 
+    @Column(name = "stripe_session_id", length = 100)
+    private String stripeSessionId;
+
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
@@ -65,4 +68,16 @@ public class Payment {
 
     @Column(name = "reserved_field2", precision = 10, scale = 2)
     private BigDecimal reservedField2;
+
+    public void markAsSuccess() {
+        this.status = PaymentStatus.SUCCESS;
+    }
+
+    public void markAsFailed() {
+        this.status = PaymentStatus.FAILED;
+    }
+
+    public void markAsRefunded() {
+        this.status = PaymentStatus.REFUNDED;
+    }
 }

@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Short id;
+    private Integer id;
 
     @Column(nullable = false)
     private String city;
@@ -28,29 +28,17 @@ public class Location {
     @Column(nullable = false)
     private String address;
 
-    @Column(precision = 10, scale = 7)
+    @Column(precision = 10, scale = 6)
     private BigDecimal lng;
 
-    @Column(precision = 10, scale = 7)
+    @Column(precision = 10, scale = 6)
     private BigDecimal lat;
-
-    @Column(name = "contact_phone", length = 32)
-    private String contactPhone;
-
-    @Column(name = "business_hours", length = 100)
-    private String businessHours;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Column(name = "reserved_field1")
-    private String reservedField1;
-
-    @Column(name = "reserved_field2")
-    private String reservedField2;
+    private Date updatedAt;
 }

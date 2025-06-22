@@ -1,5 +1,9 @@
 package cc.martincao.rentigo.rentigobackend.rental.service.impl;
 
+import cc.martincao.rentigo.rentigobackend.payment.dto.CreatePaymentSessionRequest;
+import cc.martincao.rentigo.rentigobackend.payment.dto.CreatePaymentSessionResponse;
+import cc.martincao.rentigo.rentigobackend.payment.model.PaymentType;
+import cc.martincao.rentigo.rentigobackend.payment.service.PaymentService;
 import cc.martincao.rentigo.rentigobackend.rental.dto.RentalRequestDTO;
 import cc.martincao.rentigo.rentigobackend.rental.dto.RentalResponseDTO;
 import cc.martincao.rentigo.rentigobackend.rental.exception.RentalBusinessException;
@@ -30,13 +34,16 @@ public class RentalServiceImpl implements RentalService {
     private final RentalRepository rentalRepository;
     private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
+    private final PaymentService paymentService;
 
     public RentalServiceImpl(RentalRepository rentalRepository,
                             VehicleRepository vehicleRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            PaymentService paymentService) {
         this.rentalRepository = rentalRepository;
         this.vehicleRepository = vehicleRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -46,73 +53,58 @@ public class RentalServiceImpl implements RentalService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 验证车辆存在且不在维护中
+        // 验证车辆存在且可用
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-        
-        if (vehicle.getStatus() == VehicleStatus.MAINTENANCE) {
-            throw new RentalBusinessException("Vehicle is under maintenance and not available");
+
+        if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
+            throw new RentalBusinessException("Vehicle is not available for rent");
         }
 
-        // 检查车辆是否有时间段冲突的租赁
-        List<RentalStatus> activeStatuses = Arrays.asList(
-                RentalStatus.PENDING_PAYMENT, 
-                RentalStatus.PAID, 
-                RentalStatus.ACTIVE
-        );
-        
-        // 获取所有未归还且状态活跃的租赁记录
-        List<Rental> activeRentals = rentalRepository.findByVehicleIdAndActualReturnTimeIsNullAndStatusIn(
-                request.getVehicleId(), activeStatuses
-        );
-        
-        // 检查时间段是否有冲突
-        boolean hasConflict = activeRentals.stream().anyMatch(rental -> 
-            !(request.getEndTime().before(rental.getStartTime()) || 
-              request.getStartTime().after(rental.getEndTime()))
-        );
-        
-        if (hasConflict) {
-            throw new RentalBusinessException("Vehicle is not available for the requested time period");
-        }
-
-        // 验证租赁时间
-        if (request.getStartTime().after(request.getEndTime())) {
-            throw new RentalBusinessException("Start time must be before end time");
-        }
-
-        // 允许开始时间比当前时间早5分钟，避免时差问题
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE, -5);
-        Date allowedStartTime = cal.getTime();
-        
-        if (request.getStartTime().before(allowedStartTime)) {
-            throw new RentalBusinessException("Start time cannot be more than 5 minutes in the past");
-        }
-
-        // 计算租期天数和总金额
-        long diffInMillies = request.getEndTime().getTime() - request.getStartTime().getTime();
-        long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        if (diffInDays < 1) {
-            diffInDays = 1; // 最少租一天
-        }
-        BigDecimal totalAmount = vehicle.getDailyPrice().multiply(new BigDecimal(diffInDays));
-
-        // 创建租赁订单
+        // 创建租赁记录
         Rental rental = new Rental();
         rental.setUser(user);
         rental.setVehicle(vehicle);
         rental.setStartTime(request.getStartTime());
         rental.setEndTime(request.getEndTime());
-        rental.setTotalAmount(totalAmount);
         rental.setStatus(RentalStatus.PENDING_PAYMENT);
-
-        // 保存租赁订单
+        
+        // 计算租赁费用和押金
+        BigDecimal dailyPrice = vehicle.getDailyPrice();
+        long days = TimeUnit.DAYS.convert(
+            request.getEndTime().getTime() - request.getStartTime().getTime(), 
+            TimeUnit.MILLISECONDS
+        );
+        BigDecimal totalAmount = dailyPrice.multiply(new BigDecimal(days));
+        BigDecimal depositAmount = vehicle.getVehicleType().getDepositAmount();
+        
+        rental.setTotalAmount(totalAmount);
+        rental.setDepositAmount(depositAmount);
         rental = rentalRepository.save(rental);
 
-        return convertToResponseDTO(rental);
-    }
+        // 自动创建押金支付会话
+        CreatePaymentSessionRequest paymentRequest = new CreatePaymentSessionRequest();
+        paymentRequest.setRentalId(rental.getId());
+        paymentRequest.setPaymentType(PaymentType.DEPOSIT);
+        paymentRequest.setAmount(depositAmount);
+        paymentRequest.setPaymentMethod("card");
+        paymentRequest.setDescription("车辆租赁押金 - " + vehicle.getModel());
 
+        try {
+            CreatePaymentSessionResponse paymentResponse = paymentService.createCheckoutSession(paymentRequest, userId);
+            RentalResponseDTO response = new RentalResponseDTO();
+            BeanUtils.copyProperties(rental, response);
+            response.setUserId(rental.getUser().getId());
+            response.setUsername(rental.getUser().getUsername());
+            response.setVehicleId(rental.getVehicle().getId());
+            response.setVehicleModel(rental.getVehicle().getModel());
+            response.setCheckoutUrl(paymentResponse.getCheckoutUrl());
+            return response;
+        } catch (Exception e) {
+            throw new RentalBusinessException("Failed to create payment session: " + e.getMessage());
+        }
+    }
+    
     @Override
     @Transactional
     public RentalResponseDTO returnRental(Long rentalId, Long userId) {

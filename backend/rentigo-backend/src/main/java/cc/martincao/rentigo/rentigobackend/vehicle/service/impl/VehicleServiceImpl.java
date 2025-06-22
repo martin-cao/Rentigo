@@ -2,10 +2,10 @@ package cc.martincao.rentigo.rentigobackend.vehicle.service.impl;
 
 import cc.martincao.rentigo.rentigobackend.vehicle.dto.VehicleDTO;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.Location;
+import cc.martincao.rentigo.rentigobackend.vehicle.repository.LocationRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.Vehicle;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.VehicleStatus;
 import cc.martincao.rentigo.rentigobackend.vehicle.model.VehicleType;
-import cc.martincao.rentigo.rentigobackend.vehicle.repository.LocationRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.repository.VehicleRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.repository.VehicleTypeRepository;
 import cc.martincao.rentigo.rentigobackend.vehicle.service.VehicleService;
@@ -34,7 +34,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Cacheable(value = "vehicles", key = "#locationId")
-    public List<VehicleDTO> listVehicles(Short locationId) {
+    public List<VehicleDTO> listVehicles(Integer locationId) {
         return vehicleRepository.findByLocationIdAndStatus(locationId, VehicleStatus.AVAILABLE)
                 .stream()
                 .map(this::convertToDTO)

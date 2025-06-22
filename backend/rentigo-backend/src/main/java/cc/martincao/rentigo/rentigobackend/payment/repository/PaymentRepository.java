@@ -6,6 +6,7 @@ import cc.martincao.rentigo.rentigobackend.payment.model.PaymentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
@@ -26,4 +27,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
     // 查找某租赁的成功支付记录
     List<Payment> findByRentalIdAndStatusOrderByCreatedAtDesc(Long rentalId, PaymentStatus status);
+    
+    // 根据 Stripe Session ID 查找支付记录
+    Optional<Payment> findByStripeSessionId(String sessionId);
+    
+    // 根据 Stripe Session ID 或 Transaction ID 查找支付记录
+    List<Payment> findByStripeSessionIdOrTransactionId(String sessionId, String transactionId);
 }

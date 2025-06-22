@@ -20,7 +20,7 @@ public class VehicleController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<VehicleDTO>> listVehicles(@RequestParam(required = false) Short locationId) {
+    public ResponseEntity<List<VehicleDTO>> listVehicles(@RequestParam(required = false) Integer locationId) {
         if (locationId != null) {
             return ResponseEntity.ok(vehicleService.listVehicles(locationId));
         } else {

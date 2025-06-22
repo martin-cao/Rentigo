@@ -9,6 +9,14 @@ public class MapperConfig {
 
     @Bean
     public ModelMapper modelMapper() {
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+        
+        // 配置全局策略
+        modelMapper.getConfiguration()
+                .setSkipNullEnabled(true)
+                .setAmbiguityIgnored(true)
+                .setFieldMatchingEnabled(true);
+        
+        return modelMapper;
     }
 }

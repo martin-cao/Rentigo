@@ -46,4 +46,9 @@ public class RentalResponseDTO {
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Date updatedAt;
+    
+    // 支付相关字段
+    private String checkoutUrl;        // Stripe 支付链接
+    private String paymentStatus;      // 支付状态
+    private String paymentSessionId;   // Stripe Session ID
 }

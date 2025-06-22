@@ -5,7 +5,7 @@ import cc.martincao.rentigo.rentigobackend.vehicle.dto.VehicleDTO;
 import java.util.List;
 
 public interface VehicleService {
-    List<VehicleDTO> listVehicles(Short locationId);
+    List<VehicleDTO> listVehicles(Integer locationId);
     
     List<VehicleDTO> listAllVehicles();
 

@@ -12,7 +12,7 @@ public class VehicleDTO {
     private Byte vehicleTypeId;
     private String vehicleTypeName;
     private BigDecimal depositAmount;  // 从车型中获取的押金标准
-    private Short locationId;
+    private Integer locationId;
     private String color;
     private BigDecimal dailyPrice;
     private VehicleStatus status;

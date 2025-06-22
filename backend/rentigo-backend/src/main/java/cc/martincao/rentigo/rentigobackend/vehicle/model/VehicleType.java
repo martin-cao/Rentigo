@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -22,23 +22,19 @@ public class VehicleType {
     @Column(name = "type_name", nullable = false, unique = true)
     private String typeName;
 
+    private String description;
+
+    @Column(nullable = false)
+    private Integer seats;
+
     @Column(name = "deposit_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal depositAmount = BigDecimal.ZERO;
+    private BigDecimal depositAmount;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Column(name = "reserved_field1")
-    private String reservedField1;
-
-    @Column(name = "reserved_field2")
-    private String reservedField2;
-
-    @Column(name = "reserved_field3", precision = 10, scale = 2)
-    private BigDecimal reservedField3;
+    private Date updatedAt;
 }

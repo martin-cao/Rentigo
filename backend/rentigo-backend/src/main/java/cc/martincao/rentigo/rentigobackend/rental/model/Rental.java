@@ -89,4 +89,22 @@ public class Rental {
     @Column(name = "reserved_field4")
     @Temporal(TemporalType.TIMESTAMP)
     private Date reservedField4;
+
+    public void depositPaid() {
+        if (this.status == RentalStatus.PENDING_PAYMENT) {
+            this.status = RentalStatus.PENDING_RENTAL_PAYMENT;
+        }
+    }
+
+    public void rentalFeePaid() {
+        if (this.status == RentalStatus.PENDING_RENTAL_PAYMENT) {
+            this.status = RentalStatus.PAID;
+        }
+    }
+
+    public void overtimeFeePaid() {
+        if (this.status == RentalStatus.PENDING_OVERTIME_PAYMENT) {
+            this.status = RentalStatus.FINISHED;
+        }
+    }
 }
